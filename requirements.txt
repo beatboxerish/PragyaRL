@@ -1,0 +1,7 @@
+gym~=0.18.3
+numpy~=1.19.5
+matplotlib~=3.3.4
+pandas~=1.1.5
+stable-baselines3==1.1.0
+scipy==1.5.4
+numpy==1.19.5
