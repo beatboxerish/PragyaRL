@@ -1,4 +1,4 @@
-from envs.draftEnv import FirstN
+from envs.Classification_n_points_Env import FirstN
 import pandas as pd
 from utils.test import test_load_model
 from stable_baselines3 import DQN
