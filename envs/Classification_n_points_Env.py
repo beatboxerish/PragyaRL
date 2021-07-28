@@ -6,7 +6,11 @@ from sklearn.preprocessing import StandardScaler
 
 
 class FirstN(gym.Env):
-    """Custom Environment that follows gym interface"""
+    """Selects the firstN points of a gesture that will be shown to the algorithm. These will be used to classify
+    the gesture.
+    The actions are 0 and 1 which stand for different gestures. Two columns are provided to the algorithm: X and Y
+    coordinates.
+    Make norm=True to normalize the data."""
     metadata = {'render.modes': ['human']}
 
     def __init__(self, df, n_points=10, plot_results=None, norm=True):
