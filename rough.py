@@ -1,4 +1,4 @@
-from envs.draftEnv import FirstN
+from envs.Classification_n_points_Env import FirstN
 import pandas as pd
 import numpy as np
 from stable_baselines3 import DQN
