@@ -3,36 +3,29 @@ import numpy as np
 from gym import spaces
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
+import pandas as pd
 
 
-def train_test(data_idx):
-    train_idx, test_idx = train_test_split(data_idx, test_size=0.2, random_state=0, shuffle=True)
-    return train_idx, test_idx
+def load_df(location, n):
+    df = pd.read_csv(location)
+    df = df.T
+    df = df[df.task_status != "Failure"]  # remove this later on if you have to
+    return df
 
 
-class FirstN(gym.Env):
-    """Selects the firstN points of a gesture that will be shown to the algorithm. These will be used to classify
-    the gesture.
-    The actions are 0 and 1 which stand for different gestures. Two columns are provided to the algorithm: X and Y
-    coordinates.
-    Make norm=True to normalize the data."""
-    metadata = {'render.modes': ['human']}
+class Classification(gym.Env):
+    """
+    Outputs only the X, Y coordinates for now. The aim is to classify and guess the correct task.
+    The action space is a discrete space having actions numbered from 0 to 6, which stand for different gestures.
+    """
 
-    def __init__(self, df, n_points=10, plot_results=None, norm=True):
-        super(FirstN, self).__init__()
-        self.df = df
+    def __init__(self, df, n_points=10, plot_results=None):
+        super(Classification, self).__init__()
+        self.df = load_df("datasets/pragya-prelim.json")
         self.n_points = n_points
-        self.norm = norm
         self.plot_results = plot_results
-        self.total_strokes = df.stroke.max()
-        self.indices = self.df.stroke.unique()
-        self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(low=0, high=1000, shape=(n_points, 2), dtype=np.uint8)  # correct this
-        self.train, self.test = train_test(self.indices)
-        self.do_train = True
-        self.do_test = False
-        assert self.do_train != self.do_test
+        self.action_space = spaces.Discrete(7)
+        self.observation_space = spaces.Box(low=0, high=3000, shape=(n_points, 2), dtype=np.uint8)  # correct this
 
         self.curr_id = 0
         self.curr_df = None
@@ -51,19 +44,14 @@ class FirstN(gym.Env):
         print("Columns:", df.columns)
         print("Unique Gestures:", df.direction.unique())
         print("Number of Individual Gestures:", df.stroke.nunique())
-        print("Train and Test Shape:", self.train.shape, self.test.shape)
         print("\n")
 
     def reset(self):
-        assert self.do_train != self.do_test
         self.episode += 1
-        if self.do_train:
-            choices = self.train
-        else:
-            choices = self.test
         shape_check = -1  # to make sure that size of df is more than the specified size
         while shape_check < self.n_points:
-            self.curr_id = np.random.choice(choices)
+            self.curr_id = np.random.choice(len(self.indices), 1)[0]
+            self.curr_id = self.indices[self.curr_id]
             self.curr_df = self.df[self.df.stroke == self.curr_id]
             shape_check = self.curr_df.shape[0]
 
